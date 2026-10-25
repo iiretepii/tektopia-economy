@@ -1,0 +1,1 @@
+package net.minecraftforge.common.capabilities; import net.minecraft.nbt.NBTBase; import net.minecraftforge.common.util.INBTSerializable; public interface ICapabilitySerializable<T extends NBTBase> extends ICapabilityProvider, INBTSerializable<T> {}

@@ -1,0 +1,1 @@
+package net.minecraftforge.common.capabilities; import javax.annotation.Nullable; import net.minecraft.util.EnumFacing; public interface ICapabilityProvider { boolean hasCapability(Capability<?> c, @Nullable EnumFacing f); @Nullable <T> T getCapability(Capability<T> c, @Nullable EnumFacing f); }

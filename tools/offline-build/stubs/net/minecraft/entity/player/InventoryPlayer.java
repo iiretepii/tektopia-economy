@@ -1,0 +1,1 @@
+package net.minecraft.entity.player; import javax.annotation.Nullable; import net.minecraft.item.Item; import net.minecraft.nbt.NBTTagCompound; public class InventoryPlayer { public int clearMatchingItems(@Nullable Item i, int meta, int count, @Nullable NBTTagCompound nbt){return 0;} }

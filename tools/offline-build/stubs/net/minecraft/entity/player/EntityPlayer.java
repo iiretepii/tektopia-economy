@@ -1,0 +1,1 @@
+package net.minecraft.entity.player; import net.minecraft.entity.EntityLivingBase; import net.minecraft.inventory.Container; public abstract class EntityPlayer extends EntityLivingBase { public InventoryPlayer inventory; public Container inventoryContainer; }

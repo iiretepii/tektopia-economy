@@ -31,21 +31,27 @@ Sneak and right-click a villager with an empty hand to see their wallet.
 
 All numbers are in `config/tekeco.cfg`, and can also be changed in-game from the Mods menu.
 
+## Installing
+
+Put `tektopia-economy-1.12.2-<version>.jar` in your `mods` folder next to TekTopia 1.1.0. It needs Forge 14.23.5.2768 or later, the same as TekTopia. Install it on the server and on every client.
+
 ## Building
 
-TekTopia is closed source and isn't on any Maven repository, so you supply the jar yourself.
+TekTopia is closed source and isn't on any Maven repository, so you supply the jar yourself: download `tektopia-1.1.0.jar` from CurseForge and put it in `libs/`. It is git-ignored; don't commit it. The mod jar ends up in `build/libs/` with either method below.
 
-1. Install JDK 8. ForgeGradle 2.3 doesn't run on newer Java.
-2. Download `tektopia-1.1.0.jar` from CurseForge and put it in `libs/`. It is git-ignored; don't commit it.
-3. Run `./gradlew build`. The mod jar ends up in `build/libs/`.
+**With ForgeGradle (normal, not yet tried).** Install JDK 8 (ForgeGradle 2.3 doesn't run on newer Java) and run `./gradlew build`. `./gradlew runClient` starts a dev client with TekTopia copied into `run/mods`.
 
-`./gradlew runClient` starts a dev client with TekTopia copied into `run/mods`.
-
-To install, put the built jar next to TekTopia in your `mods` folder. TekTopia needs Forge 14.23.5.2768 or later.
+**Without ForgeGradle.** `tools/offline-build/build.sh` builds the same jar on machines that can't reach Forge's or Mojang's servers. It needs JDK 11 or newer, `git` and `curl`, and downloads only from Maven Central and GitHub. It compiles against small stand-ins for the Minecraft and Forge classes the mod uses (`tools/offline-build/stubs/`), then renames Minecraft members to their runtime (SRG) names using the official MCP 1.12 and `stable_39` mappings, as ForgeGradle's reobfuscation does. It stops if any Minecraft reference has no mapping. Pass a folder of other Forge 1.12.2 mod jars as the first argument to also check every Minecraft, Forge and library reference against what those mods use. If you add code that uses another Minecraft or Forge class or method, add it to the stand-ins first.
 
 ## Status
 
-Version 0.1.0 has not been run in a game yet. The code was compiled against the real TekTopia 1.1.0 jar, with stand-ins for the Minecraft and Forge classes. That checks every call into TekTopia, but not the Minecraft and Forge method names. The first full `./gradlew build` is the first check of those.
+Version 0.1.0 has not been run in a game yet. The 0.1.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+
+- It compiles against the real TekTopia 1.1.0 jar.
+- Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
+- All 104 Minecraft, Forge and library references it makes appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others).
+
+Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession) still needs testing in a world.
 
 ## Code map
 
@@ -59,3 +65,4 @@ Version 0.1.0 has not been run in a game yet. The code was compiled against the 
 | `src/main/java/tekeco/event/EconomyEvents.java` | Attaching wallets, payday ticks, wallet carry-over, estates, wallet inspection |
 | `src/main/java/tekeco/command/CommandTekEco.java` | `/tekeco` command |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
+| `tools/offline-build/` | Build script for machines without access to Forge's servers |

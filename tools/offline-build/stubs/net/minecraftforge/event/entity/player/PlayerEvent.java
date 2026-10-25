@@ -1,0 +1,1 @@
+package net.minecraftforge.event.entity.player; import net.minecraft.entity.player.EntityPlayer; import net.minecraftforge.event.entity.living.LivingEvent; public class PlayerEvent extends LivingEvent { public EntityPlayer getEntityPlayer(){return null;} }

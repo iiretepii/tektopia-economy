@@ -1,0 +1,1 @@
+package net.minecraft.command; import net.minecraft.util.text.ITextComponent; public interface ICommandSender { default void sendMessage(ITextComponent c){} boolean canUseCommand(int level, String name); }

@@ -1,0 +1,1 @@
+package net.minecraftforge.common.capabilities; import java.util.concurrent.Callable; public enum CapabilityManager { INSTANCE; public <T> void register(Class<T> t, Capability.IStorage<T> s, Callable<? extends T> f){} }

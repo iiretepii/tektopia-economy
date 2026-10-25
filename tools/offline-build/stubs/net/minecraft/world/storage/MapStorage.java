@@ -1,0 +1,1 @@
+package net.minecraft.world.storage; import javax.annotation.Nullable; public class MapStorage { @Nullable public WorldSavedData getOrLoadData(Class<? extends WorldSavedData> c, String id){return null;} public void setData(String id, WorldSavedData d){} }

@@ -1,0 +1,1 @@
+package net.minecraftforge.fml.client.event; import net.minecraftforge.fml.common.eventhandler.Event; public class ConfigChangedEvent extends Event { public String getModID(){return "";} public static class OnConfigChangedEvent extends ConfigChangedEvent {} }

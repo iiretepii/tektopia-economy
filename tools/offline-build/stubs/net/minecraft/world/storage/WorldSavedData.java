@@ -1,0 +1,1 @@
+package net.minecraft.world.storage; import net.minecraft.nbt.NBTTagCompound; public abstract class WorldSavedData { public WorldSavedData(String n){} public abstract void readFromNBT(NBTTagCompound n); public abstract NBTTagCompound writeToNBT(NBTTagCompound c); public void markDirty(){} }

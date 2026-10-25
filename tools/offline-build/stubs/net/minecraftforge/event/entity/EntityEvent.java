@@ -1,0 +1,1 @@
+package net.minecraftforge.event.entity; import net.minecraft.entity.Entity; import net.minecraftforge.fml.common.eventhandler.Event; public class EntityEvent extends Event { public Entity getEntity(){return null;} }

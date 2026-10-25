@@ -1,0 +1,1 @@
+package net.minecraftforge.items; import net.minecraft.entity.player.EntityPlayer; import net.minecraft.item.ItemStack; public class ItemHandlerHelper { public static void giveItemToPlayer(EntityPlayer p, ItemStack s){} }

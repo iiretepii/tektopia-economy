@@ -107,7 +107,7 @@ public class CommandTekEco extends CommandBase {
             throw new CommandException("commands.tekeco.withdraw.notenough", treasury.getBalance());
         }
         TreasuryData.get(player.world).markDirty();
-        int maxStack = Items.EMERALD.getItemStackLimit();
+        int maxStack = new ItemStack(Items.EMERALD, 1).getMaxStackSize();
         for (int left = amount; left > 0; left -= maxStack) {
             ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(Items.EMERALD, Math.min(left, maxStack)));
         }
