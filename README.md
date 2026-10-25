@@ -45,13 +45,13 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 ## Status
 
-Version 0.1.0 has not been run in a game yet. The 0.1.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.1.1 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
 - All 104 Minecraft, Forge and library references it makes appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others).
 
-Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession) still needs testing in a world.
+In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession) still needs testing in a world.
 
 ## Code map
 
