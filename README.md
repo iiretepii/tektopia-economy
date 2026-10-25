@@ -33,7 +33,7 @@ All numbers are in `config/tekeco.cfg`, and can also be changed in-game from the
 
 ## Installing
 
-Put `tektopia-economy-1.12.2-<version>.jar` in your `mods` folder next to TekTopia 1.1.0. It needs Forge 14.23.5.2768 or later, the same as TekTopia. Install it on the server and on every client.
+The built jar is in [`dist/`](dist/). Put `tektopia-economy-1.12.2-<version>.jar` in your `mods` folder next to TekTopia 1.1.0. It needs Forge 14.23.5.2768 or later, the same as TekTopia. Install it on the server and on every client.
 
 ## Building
 
@@ -65,4 +65,5 @@ Gameplay itself (payday timing, wage amounts, the wallet carry-over when village
 | `src/main/java/tekeco/event/EconomyEvents.java` | Attaching wallets, payday ticks, wallet carry-over, estates, wallet inspection |
 | `src/main/java/tekeco/command/CommandTekEco.java` | `/tekeco` command |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
+| `dist/` | Built mod jars, ready to install |
 | `tools/offline-build/` | Build script for machines without access to Forge's servers |
