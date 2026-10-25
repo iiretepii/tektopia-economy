@@ -58,3 +58,4 @@ Version 0.1.0 has not been run in a game yet. The code was compiled against the 
 | `src/main/java/tekeco/payroll/` | Daily payday logic and village lookups |
 | `src/main/java/tekeco/event/EconomyEvents.java` | Attaching wallets, payday ticks, wallet carry-over, estates, wallet inspection |
 | `src/main/java/tekeco/command/CommandTekEco.java` | `/tekeco` command |
+| `docs/design.md` | Notes on TekTopia's internals and the economy design |
