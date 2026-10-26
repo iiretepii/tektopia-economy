@@ -48,12 +48,14 @@ Stand inside a village and use:
 - `/tekeco balance`: show the treasury balance.
 - `/tekeco deposit <amount|all>`: move emeralds from your inventory into the treasury.
 - `/tekeco withdraw <amount>`: take emeralds out (operators only if `withdrawRequiresOp` is on).
-- `/tekeco report`: treasury balance, total villager savings, the last payday's wages, upkeep and shortfalls, the Tradesman's last sale, and the last Tavern night.
+- `/tekeco report`: treasury balance, total villager savings, the last payday's wages, upkeep and shortfalls, the Tradesman's last sale, and the last Tavern night. Income shows in green and problems in red; hover over a line for an explanation. Click `[Deposit]`, `[Sell list]` or `[Refresh]` at the bottom as shortcuts.
 - `/tekeco sell`: show what this village's Tradesman sells.
 - `/tekeco sell add <item>` / `/tekeco sell remove <item>`: change this village's sell list (operators only if `sellListRequiresOp` is on). The first change copies the config list into the village, which keeps its own list from then on.
 - `/tekeco sell reset`: go back to the config list.
 
 Sneak and right-click a villager with an empty hand to see their wallet, and whether they've been turned away from the Tavern.
+
+Players standing in a village see a short notice above the hotbar at payday (in red if anyone went unpaid) and when the Tradesman sells to the Merchant. Set `actionBarNotices = false` to turn these off.
 
 All numbers are in `config/tekeco.cfg`, and can also be changed in-game from the Mods menu.
 
@@ -67,15 +69,15 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 **With ForgeGradle (normal, not yet tried).** Install JDK 8 (ForgeGradle 2.3 doesn't run on newer Java) and run `./gradlew build`. `./gradlew runClient` starts a dev client with TekTopia copied into `run/mods`.
 
-**Without ForgeGradle.** `tools/offline-build/build.sh` builds the same jar on machines that can't reach Forge's or Mojang's servers. It needs JDK 11 or newer, `git` and `curl`, and downloads only from Maven Central and GitHub. It compiles against small stand-ins for the Minecraft and Forge classes the mod uses (`tools/offline-build/stubs/`), then renames Minecraft members to their runtime (SRG) names using the official MCP 1.12 and `stable_39` mappings, as ForgeGradle's reobfuscation does. It stops if any Minecraft reference has no mapping. Pass a folder of other Forge 1.12.2 mod jars as the first argument to also check every Minecraft, Forge and library reference against what those mods use. If you add code that uses another Minecraft or Forge class or method, add it to the stand-ins first.
+**Without ForgeGradle.** `tools/offline-build/build.sh` builds the same jar on machines that can't reach Forge's or Mojang's servers. It needs JDK 11 or newer, `git` and `curl`, and downloads only from Maven Central and GitHub. It compiles against small stand-ins for the Minecraft and Forge classes the mod uses (`tools/offline-build/stubs/`), then renames Minecraft members to their runtime (SRG) names using the official MCP 1.12 and `stable_39` mappings, as ForgeGradle's reobfuscation does. It stops if any Minecraft reference has no mapping. Pass a folder of other Forge 1.12.2 mod jars as the first argument to also check every Minecraft, Forge and library reference against what those mods use. A vanilla Minecraft member that none of them uses still passes if the official mappings declare it; Forge and library references must appear in a mod. If you add code that uses another Minecraft or Forge class or method, add it to the stand-ins first.
 
 ## Status
 
-The 0.3.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.4.0 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
-- All 127 Minecraft, Forge and library references it makes appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others).
+- 150 of its 153 Minecraft, Forge and library references appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others). The other 3 are vanilla Minecraft members no sampled mod uses (two click-event actions and `Style.setBold`), which the official mappings declare with the same signatures.
 
 In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales, Tavern tabs) still needs testing in a world.
 
@@ -92,6 +94,7 @@ In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco
 | `src/main/java/tekeco/command/CommandTekEco.java` | `/tekeco` command |
 | `src/main/java/tekeco/export/` | Tradesman sales and item matching |
 | `src/main/java/tekeco/tavern/` | Tavern tabs |
+| `src/main/java/tekeco/text/` | Styled chat text and action-bar notices |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
 | `dist/` | Built mod jars, ready to install |
 | `tools/offline-build/` | Build script for machines without access to Forge's servers |

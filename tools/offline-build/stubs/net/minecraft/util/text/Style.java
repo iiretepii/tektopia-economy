@@ -1,0 +1,1 @@
+package net.minecraft.util.text; import net.minecraft.util.text.event.*; public class Style { public Style setColor(TextFormatting c){return this;} public Style setBold(Boolean b){return this;} public Style setHoverEvent(HoverEvent e){return this;} public Style setClickEvent(ClickEvent e){return this;} }

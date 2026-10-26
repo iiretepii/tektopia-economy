@@ -12,7 +12,11 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.tangotek.tektopia.Village;
@@ -21,6 +25,7 @@ import tekeco.EcoConfig;
 import tekeco.export.ItemSpec;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
+import tekeco.text.Messages;
 import tekeco.treasury.Treasury;
 import tekeco.treasury.TreasuryData;
 import tekeco.wallet.IWallet;
@@ -132,31 +137,54 @@ public class CommandTekEco extends CommandBase {
                 savings += wallet.getCoins();
             }
         }
-        player.sendMessage(new TextComponentTranslation("commands.tekeco.report.header", village.getName()));
-        player.sendMessage(new TextComponentTranslation("commands.tekeco.report.balance", treasury.getBalance()));
-        player.sendMessage(new TextComponentTranslation("commands.tekeco.report.savings", savings, residents));
+        long today = Payroll.payday(world);
+        String hover = "commands.tekeco.report.hover.";
+
+        ITextComponent header = new TextComponentTranslation("commands.tekeco.report.header", Messages.value(village.getName(), TextFormatting.WHITE));
+        header.getStyle().setColor(TextFormatting.GOLD);
+        header.getStyle().setBold(true);
+        player.sendMessage(header);
+
+        int balance = treasury.getBalance();
+        player.sendMessage(Messages.line("commands.tekeco.report.balance", hover + "balance",
+            Messages.value(balance, balance > 0 ? Messages.GOOD : Messages.BAD)));
+        player.sendMessage(Messages.line("commands.tekeco.report.savings", hover + "savings",
+            Messages.value(savings, Messages.NEUTRAL), Messages.value(residents, Messages.NEUTRAL)));
+
         if (treasury.getStatsDay() < 0) {
-            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.nopayday"));
+            player.sendMessage(Messages.line("commands.tekeco.report.nopayday", hover + "payday"));
         } else {
-            long daysAgo = Payroll.payday(world) - treasury.getStatsDay();
-            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.payday", daysAgo,
-                treasury.getWagesPaid(), treasury.getVillagersPaid(), treasury.getUpkeepCollected(),
-                treasury.getVillagersUnpaid(), treasury.getVillagersBroke()));
+            player.sendMessage(Messages.line("commands.tekeco.report.payday", hover + "payday",
+                Messages.when(today - treasury.getStatsDay()),
+                Messages.value(treasury.getWagesPaid(), Messages.NEUTRAL), Messages.value(treasury.getVillagersPaid(), Messages.NEUTRAL),
+                Messages.income(treasury.getUpkeepCollected()),
+                Messages.problems(treasury.getVillagersUnpaid()), Messages.problems(treasury.getVillagersBroke())));
         }
         if (treasury.getExportDay() < 0) {
-            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.nosales"));
+            player.sendMessage(Messages.line("commands.tekeco.report.nosales", hover + "sales"));
         } else {
-            long daysAgo = Payroll.payday(world) - treasury.getExportDay();
-            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.sales", daysAgo,
-                treasury.getExportTrades(), treasury.getExportIncome()));
+            player.sendMessage(Messages.line("commands.tekeco.report.sales", hover + "sales",
+                Messages.when(today - treasury.getExportDay()),
+                Messages.value(treasury.getExportTrades(), Messages.NEUTRAL), Messages.income(treasury.getExportIncome())));
         }
         if (treasury.getTavernDay() < 0) {
-            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.notavern"));
+            player.sendMessage(Messages.line("commands.tekeco.report.notavern", hover + "tavern"));
         } else {
-            long daysAgo = Payroll.payday(world) - treasury.getTavernDay();
-            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.tavern", daysAgo,
-                treasury.getTavernTabs(), treasury.getTavernIncome(), treasury.getTavernBardPaid(), treasury.getTavernTurnedAway()));
+            player.sendMessage(Messages.line("commands.tekeco.report.tavern", hover + "tavern",
+                Messages.when(today - treasury.getTavernDay()),
+                Messages.value(treasury.getTavernTabs(), Messages.NEUTRAL), Messages.income(treasury.getTavernIncome()),
+                Messages.income(treasury.getTavernBardPaid()), Messages.problems(treasury.getTavernTurnedAway())));
         }
+
+        String button = "commands.tekeco.button.";
+        // Start from an unstyled root so the spaces between buttons aren't clickable.
+        ITextComponent buttons = new TextComponentString("");
+        buttons.appendSibling(Messages.button(button + "deposit", button + "deposit.hover", ClickEvent.Action.SUGGEST_COMMAND, "/tekeco deposit "));
+        buttons.appendText(" ");
+        buttons.appendSibling(Messages.button(button + "sell", button + "sell.hover", ClickEvent.Action.RUN_COMMAND, "/tekeco sell"));
+        buttons.appendText(" ");
+        buttons.appendSibling(Messages.button(button + "refresh", button + "refresh.hover", ClickEvent.Action.RUN_COMMAND, "/tekeco report"));
+        player.sendMessage(buttons);
     }
 
     private void sell(EntityPlayerMP player, Village village, Treasury treasury, String[] args) throws CommandException {

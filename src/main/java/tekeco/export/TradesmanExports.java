@@ -16,6 +16,7 @@ import net.tangotek.tektopia.entities.EntityTradesman;
 import tekeco.EcoConfig;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
+import tekeco.text.Notices;
 import tekeco.treasury.Treasury;
 import tekeco.treasury.TreasuryData;
 
@@ -89,6 +90,9 @@ public final class TradesmanExports {
             }
         }
         treasury.recordExport(today, trades, income);
+        if (trades > 0) {
+            Notices.sale(world, village, treasury);
+        }
         return true;
     }
 

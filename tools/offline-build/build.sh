@@ -86,7 +86,17 @@ if [ -n "$CORPUS" ]; then
     echo "Checking references against $CORPUS..."
     java -cp "$WORK/tools:$ASM" RefCheck "$WORK/srg" net/minecraft,com/google,org/apache,javax/ "$CORPUS"/*.jar 2>&1 | quiet > "$WORK/refcheck.log"
     tail -1 "$WORK/refcheck.log"
-    if grep -q '^MISSING' "$WORK/refcheck.log"; then grep '^MISSING' "$WORK/refcheck.log"; exit 1; fi
+    # A vanilla Minecraft member no sampled mod uses still counts if the official mappings
+    # declare it with the same signature. Forge and library references must appear in a mod.
+    STILL_MISSING=""
+    while read -r _ kind owner name desc; do
+        case "$owner" in net/minecraftforge/*) ;; net/minecraft/*)
+            if [ "$kind" = M ] && grep -qF " $owner/$name $desc" "$MAP/joined.srg"; then echo "In mappings: $owner $name $desc"; continue; fi
+            if [ "$kind" = F ] && awk -v f="$owner/$name" '{ sub(/\r$/, "") } $1 == "FD:" && $3 == f { found = 1 } END { exit !found }' "$MAP/joined.srg"; then echo "In mappings: $owner $name"; continue; fi
+        esac
+        STILL_MISSING="$STILL_MISSING$kind $owner $name $desc"$'\n'
+    done < <(grep '^MISSING' "$WORK/refcheck.log" | sort -u)
+    if [ -n "$STILL_MISSING" ]; then echo "Missing references:"; printf '%s' "$STILL_MISSING"; exit 1; fi
 fi
 
 echo "Packaging..."

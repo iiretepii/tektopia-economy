@@ -1,0 +1,1 @@
+package net.minecraft.util.text; public abstract class TextComponentBase implements ITextComponent { public Style getStyle(){return null;} public ITextComponent appendSibling(ITextComponent c){return this;} public ITextComponent appendText(String s){return this;} }

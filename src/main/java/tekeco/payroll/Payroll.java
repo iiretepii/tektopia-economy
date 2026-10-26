@@ -1,10 +1,14 @@
 package tekeco.payroll;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import net.minecraft.world.World;
 import net.tangotek.tektopia.ProfessionType;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
+import tekeco.text.Notices;
 import tekeco.treasury.Treasury;
 import tekeco.treasury.TreasuryData;
 import tekeco.wallet.IWallet;
@@ -34,12 +38,20 @@ public final class Payroll {
 
     public static void run(World world) {
         long today = payday(world);
-        boolean changed = false;
+        Set<Village> paid = Collections.newSetFromMap(new IdentityHashMap<>());
         for (EntityVillagerTek villager : world.getEntities(EntityVillagerTek.class, v -> v != null && v.isEntityAlive())) {
-            changed |= settle(world, villager, today);
+            if (settle(world, villager, today)) {
+                paid.add(villager.getVillage());
+            }
         }
-        if (changed) {
+        if (!paid.isEmpty()) {
             TreasuryData.get(world).markDirty();
+            for (Village village : paid) {
+                Treasury treasury = Villages.treasury(world, village);
+                if (treasury != null) {
+                    Notices.payday(world, village, treasury);
+                }
+            }
         }
     }
 

@@ -76,6 +76,9 @@ public class EcoConfig {
     @Config.Comment("If true, only operators can change a village's sell list with /tekeco sell.")
     public static boolean sellListRequiresOp = false;
 
+    @Config.Comment("If true, players standing in a village see payday and Tradesman sale notices above the hotbar.")
+    public static boolean actionBarNotices = true;
+
     @Config.Comment("Emeralds a villager on the payroll pays for an evening at the Tavern, once per day. 0 makes the Tavern free.")
     @Config.RangeInt(min = 0)
     public static int tavernTab = 1;

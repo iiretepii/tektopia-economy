@@ -1,0 +1,1 @@
+package net.minecraft.util.text.event; import net.minecraft.util.text.ITextComponent; public class HoverEvent { public HoverEvent(Action a, ITextComponent v){} public enum Action { SHOW_TEXT, SHOW_ITEM, SHOW_ENTITY } }
