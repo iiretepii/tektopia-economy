@@ -7,4 +7,5 @@ public abstract class CommandBase implements ICommand { public int compareTo(ICo
  public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos){return null;}
  public static int parseInt(String s, int min) throws NumberInvalidException {return 0;}
  public static EntityPlayerMP getCommandSenderAsPlayer(ICommandSender s) throws PlayerNotFoundException {return null;}
- public static List<String> getListOfStringsMatchingLastWord(String[] args, String... p){return null;} }
+ public static List<String> getListOfStringsMatchingLastWord(String[] args, String... p){return null;}
+ public static List<String> getListOfStringsMatchingLastWord(String[] args, java.util.Collection<?> p){return null;} }

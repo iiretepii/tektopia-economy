@@ -1,1 +1,1 @@
-package net.minecraft.item; public class Item { public int getItemStackLimit(){return 64;} }
+package net.minecraft.item; import javax.annotation.Nullable; import net.minecraftforge.registries.IForgeRegistryEntry; public class Item extends IForgeRegistryEntry.Impl<Item> { public int getItemStackLimit(){return 64;} @Nullable public static Item getByNameOrId(String id){return null;} }

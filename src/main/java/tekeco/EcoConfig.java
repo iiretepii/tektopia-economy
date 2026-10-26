@@ -2,12 +2,14 @@ package tekeco;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.tangotek.tektopia.ProfessionType;
+import tekeco.export.ItemSpec;
 
 @Config(modid = TekEconomy.MODID)
 public class EcoConfig {
@@ -55,6 +57,35 @@ public class EcoConfig {
     @Config.Comment("If true, only operators can withdraw from a treasury.")
     public static boolean withdrawRequiresOp = false;
 
+    @Config.Comment("If true, the Town Hall's Tradesman sells surplus village goods to the Merchant once a day, for the treasury.")
+    public static boolean tradesmanSells = true;
+
+    @Config.Comment({
+        "Items the Tradesman may sell, as modid:name (any variant) or modid:name:meta (one variant), e.g. minecraft:dye:4 for lapis.",
+        "* means anything the Merchant buys; an empty list means nothing. /tekeco sell can override this for one village."
+    })
+    public static String[] tradesmanItems = {"minecraft:diamond", "minecraft:redstone"};
+
+    @Config.Comment("How many of an item the Tradesman leaves in Storage, by modid:name or modid:name:meta. Unlisted items use defaultReserve.")
+    public static Map<String, Integer> tradesmanReserves = defaultReserves();
+
+    @Config.Comment("How many of an unlisted item the Tradesman leaves in Storage.")
+    @Config.RangeInt(min = 0)
+    public static int defaultReserve = 64;
+
+    @Config.Comment("If true, only operators can change a village's sell list with /tekeco sell.")
+    public static boolean sellListRequiresOp = false;
+
+    /** How many of this exact item and variant the Tradesman must leave in Storage. */
+    public static int reserve(ItemStack stack) {
+        String spec = ItemSpec.of(stack);
+        Integer reserve = tradesmanReserves.get(spec);
+        if (reserve == null) {
+            reserve = tradesmanReserves.get(spec.substring(0, spec.lastIndexOf(':')));
+        }
+        return reserve == null ? defaultReserve : Math.max(0, reserve);
+    }
+
     public static int baseWage(ProfessionType profession) {
         if (profession == null) {
             return 0;
@@ -66,6 +97,14 @@ public class EcoConfig {
     public static int wage(ProfessionType profession, int skill) {
         int base = baseWage(profession);
         return (int) Math.round(base * (1.0 + skillBonus * Math.max(0, Math.min(skill, 100)) / 100.0));
+    }
+
+    private static Map<String, Integer> defaultReserves() {
+        Map<String, Integer> map = new HashMap<>();
+        // The Blacksmith makes diamond tools and armor; villagers don't use redstone.
+        map.put("minecraft:diamond", 4);
+        map.put("minecraft:redstone", 0);
+        return map;
     }
 
     private static Map<String, Integer> defaultWages() {

@@ -1,0 +1,1 @@
+package net.minecraft.entity; import javax.annotation.Nullable; import net.minecraft.entity.player.EntityPlayer; import net.minecraft.village.MerchantRecipeList; public interface IMerchant { @Nullable MerchantRecipeList getRecipes(EntityPlayer player); }

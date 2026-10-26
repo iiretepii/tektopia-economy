@@ -1,1 +1,1 @@
-package net.minecraft.item; public final class ItemStack { public ItemStack(Item i, int c){} public boolean isEmpty(){return true;} public int getMaxStackSize(){return 64;} }
+package net.minecraft.item; public final class ItemStack { public ItemStack(Item i, int c){} public boolean isEmpty(){return true;} public int getMaxStackSize(){return 64;} public Item getItem(){return null;} public int getMetadata(){return 0;} public int getCount(){return 0;} public void shrink(int n){} }

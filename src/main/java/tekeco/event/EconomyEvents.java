@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
+import tekeco.export.TradesmanExports;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
 import tekeco.treasury.Treasury;
@@ -36,6 +37,7 @@ public class EconomyEvents {
         World world = event.world;
         if (event.phase == TickEvent.Phase.END && !world.isRemote && world.getTotalWorldTime() % Payroll.CHECK_INTERVAL == 0) {
             Payroll.run(world);
+            TradesmanExports.run(world);
         }
     }
 

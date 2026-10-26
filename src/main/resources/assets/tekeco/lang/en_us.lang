@@ -1,7 +1,7 @@
 tekeco.wallet.info=%s has %s emeralds (last wage: %s).
 tekeco.wallet.unpaid=%s has %s emeralds and is not on the payroll.
 
-commands.tekeco.usage=/tekeco <balance|deposit <amount|all>|withdraw <amount>|report>
+commands.tekeco.usage=/tekeco <balance|deposit <amount|all>|withdraw <amount>|report|sell [list|add|remove|reset]>
 commands.tekeco.novillage=You're not standing in a TekTopia village.
 commands.tekeco.notownhall=This village has no Town Hall, so it has no treasury yet.
 commands.tekeco.balance=%s treasury: %s emeralds.
@@ -17,3 +17,15 @@ commands.tekeco.report.balance=Treasury: %s emeralds
 commands.tekeco.report.savings=Villager savings: %s emeralds across %s loaded villagers
 commands.tekeco.report.nopayday=No payday yet.
 commands.tekeco.report.payday=Last payday (%s days ago): paid %s emeralds to %s villagers, collected %s in rent and food. Unpaid: %s. Couldn't afford living costs: %s.
+commands.tekeco.report.nosales=The Tradesman hasn't sold to the Merchant yet.
+commands.tekeco.report.sales=Tradesman's last sale (%s days ago): %s trades with the Merchant for %s emeralds.
+commands.tekeco.sell.usage=/tekeco sell [list|add <item>|remove <item>|reset]
+commands.tekeco.sell.oponly=Only operators can change a village's sell list.
+commands.tekeco.sell.unknown=Unknown item: %s. Use modid:name or modid:name:meta, e.g. minecraft:diamond or minecraft:dye:4.
+commands.tekeco.sell.notlisted=%s isn't on this village's sell list.
+commands.tekeco.sell.list=%s's Tradesman sells: %s
+commands.tekeco.sell.anything=%s's Tradesman sells anything the Merchant buys.
+commands.tekeco.sell.nothing=%s's Tradesman doesn't sell anything.
+commands.tekeco.sell.own=This village has its own list. /tekeco sell reset goes back to the config list.
+commands.tekeco.sell.default=This is the config list (tradesmanItems in tekeco.cfg).
+commands.tekeco.sell.disabled=Tradesman selling is turned off in the config (tradesmanSells).

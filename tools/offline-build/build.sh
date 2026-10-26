@@ -71,13 +71,15 @@ javac -nowarn -cp "$ASM" -d "$WORK/tools" "$HERE"/src/*.java 2>&1 | quiet
 echo "Converting to SRG names..."
 java -cp "$WORK/tools:$ASM" Reobf "$MAP" "$WORK/classes" "$WORK/srg" \
     "$WORK/classes" "$WORK/stubs" "$TEKTOPIA" "$CRAFTSTUDIO" ${LIBS//:/ } 2>&1 | quiet | tee "$WORK/reobf.log"
-# Unmapped Minecraft-owned names are only allowed for Forge-added members, TekTopia's own
-# methods and this mod's own members.
+# Unmapped Minecraft-owned names are only allowed for Forge-added members, members inherited
+# from Java classes, TekTopia's own methods and this mod's own members.
 UNEXPECTED="$(grep '^UNMAPPED' "$WORK/reobf.log" \
     | grep -v ' tekeco/' \
     | grep -v ' net/tangotek/' \
     | grep -v -E ' net/minecraft/entity/Entity (getCapability|hasCapability) ' \
-    | grep -v -E ' net/minecraft/world/World getPerWorldStorage ' || true)"
+    | grep -v -E ' net/minecraft/world/World getPerWorldStorage ' \
+    | grep -v -E ' net/minecraft/item/Item getRegistryName ' \
+    | grep -v -E ' net/minecraft/village/MerchantRecipeList iterator ' || true)"
 [ -z "$UNEXPECTED" ] || { echo "Unexpected unmapped references:"; echo "$UNEXPECTED"; exit 1; }
 
 if [ -n "$CORPUS" ]; then

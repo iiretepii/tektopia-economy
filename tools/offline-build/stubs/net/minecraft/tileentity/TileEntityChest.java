@@ -1,0 +1,1 @@
+package net.minecraft.tileentity; import net.minecraft.inventory.IInventory; import net.minecraft.item.ItemStack; public class TileEntityChest extends TileEntity implements IInventory { public int getSizeInventory(){return 27;} public ItemStack getStackInSlot(int index){return null;} }

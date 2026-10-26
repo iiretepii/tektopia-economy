@@ -18,6 +18,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
+import tekeco.export.ItemSpec;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
 import tekeco.treasury.Treasury;
@@ -25,7 +26,10 @@ import tekeco.treasury.TreasuryData;
 import tekeco.wallet.IWallet;
 import tekeco.wallet.WalletCapability;
 
-/** /tekeco balance | deposit <amount|all> | withdraw <amount> | report, for the village you're standing in. */
+/**
+ * /tekeco balance | deposit <amount|all> | withdraw <amount> | report | sell [list|add|remove|reset],
+ * for the village you're standing in.
+ */
 public class CommandTekEco extends CommandBase {
 
     @Override
@@ -73,6 +77,9 @@ public class CommandTekEco extends CommandBase {
                 break;
             case "report":
                 report(player, village, treasury);
+                break;
+            case "sell":
+                sell(player, village, treasury, args);
                 break;
             default:
                 throw new WrongUsageException(getUsage(sender));
@@ -136,15 +143,89 @@ public class CommandTekEco extends CommandBase {
                 treasury.getWagesPaid(), treasury.getVillagersPaid(), treasury.getUpkeepCollected(),
                 treasury.getVillagersUnpaid(), treasury.getVillagersBroke()));
         }
+        if (treasury.getExportDay() < 0) {
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.nosales"));
+        } else {
+            long daysAgo = Payroll.payday(world) - treasury.getExportDay();
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.sales", daysAgo,
+                treasury.getExportTrades(), treasury.getExportIncome()));
+        }
+    }
+
+    private void sell(EntityPlayerMP player, Village village, Treasury treasury, String[] args) throws CommandException {
+        String action = args.length < 2 ? "list" : args[1];
+        if (!"list".equals(action) && EcoConfig.sellListRequiresOp && !player.canUseCommand(2, getName())) {
+            throw new CommandException("commands.tekeco.sell.oponly");
+        }
+        switch (action) {
+            case "list":
+                break;
+            case "add": {
+                String spec = sellArgument(args);
+                if (!ItemSpec.isValid(spec)) {
+                    throw new CommandException("commands.tekeco.sell.unknown", spec);
+                }
+                if (treasury.getSellList().stream().noneMatch(e -> ItemSpec.normalize(e).equals(spec))) {
+                    treasury.editSellList().add(spec);
+                }
+                break;
+            }
+            case "remove": {
+                String spec = sellArgument(args);
+                if (treasury.getSellList().stream().noneMatch(e -> ItemSpec.normalize(e).equals(spec))) {
+                    throw new CommandException("commands.tekeco.sell.notlisted", spec);
+                }
+                treasury.editSellList().removeIf(e -> ItemSpec.normalize(e).equals(spec));
+                break;
+            }
+            case "reset":
+                treasury.resetSellList();
+                break;
+            default:
+                throw new WrongUsageException("commands.tekeco.sell.usage");
+        }
+        if (!"list".equals(action)) {
+            TreasuryData.get(player.world).markDirty();
+        }
+
+        List<String> list = treasury.getSellList();
+        if (list.isEmpty()) {
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.sell.nothing", village.getName()));
+        } else if (list.contains(ItemSpec.ANY)) {
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.sell.anything", village.getName()));
+        } else {
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.sell.list", village.getName(), String.join(", ", list)));
+        }
+        player.sendMessage(new TextComponentTranslation(treasury.hasOwnSellList() ? "commands.tekeco.sell.own" : "commands.tekeco.sell.default"));
+        if (!EcoConfig.tradesmanSells) {
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.sell.disabled"));
+        }
+    }
+
+    private static String sellArgument(String[] args) throws WrongUsageException {
+        if (args.length < 3) {
+            throw new WrongUsageException("commands.tekeco.sell.usage");
+        }
+        return ItemSpec.normalize(args[2]);
     }
 
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
         if (args.length == 1) {
-            return getListOfStringsMatchingLastWord(args, "balance", "deposit", "withdraw", "report");
+            return getListOfStringsMatchingLastWord(args, "balance", "deposit", "withdraw", "report", "sell");
         }
         if (args.length == 2 && "deposit".equals(args[0])) {
             return getListOfStringsMatchingLastWord(args, "all");
+        }
+        if (args.length == 2 && "sell".equals(args[0])) {
+            return getListOfStringsMatchingLastWord(args, "list", "add", "remove", "reset");
+        }
+        if (args.length == 3 && "sell".equals(args[0]) && "remove".equals(args[1]) && sender instanceof EntityPlayerMP) {
+            EntityPlayerMP player = (EntityPlayerMP) sender;
+            Treasury treasury = Villages.treasury(player.world, Villages.at(player.world, player.getPosition()));
+            if (treasury != null) {
+                return getListOfStringsMatchingLastWord(args, treasury.getSellList());
+            }
         }
         return Collections.emptyList();
     }

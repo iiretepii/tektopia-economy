@@ -65,6 +65,15 @@ public class RefCheck {
     static void scan(byte[] bytes, Set<String> out, boolean declarations) {
         ClassReader reader = new ClassReader(bytes);
         String self = reader.getClassName();
+        if (declarations) {
+            // A class that's extended or implemented exists, even if nothing calls into it.
+            if (reader.getSuperName() != null) {
+                out.add("C " + reader.getSuperName());
+            }
+            for (String itf : reader.getInterfaces()) {
+                out.add("C " + itf);
+            }
+        }
         reader.accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
             public FieldVisitor visitField(int access, String name, String desc, String sig, Object value) {

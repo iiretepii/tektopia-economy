@@ -1,0 +1,1 @@
+package net.minecraft.village; import net.minecraft.item.ItemStack; public class MerchantRecipe { public ItemStack getItemToBuy(){return null;} public ItemStack getItemToSell(){return null;} public boolean isRecipeDisabled(){return false;} public void incrementToolUses(){} }
