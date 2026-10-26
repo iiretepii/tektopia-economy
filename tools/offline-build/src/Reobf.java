@@ -88,7 +88,15 @@ public class Reobf {
     }
 
     /** Walks owner's superclasses and interfaces for a Minecraft declaration of this member. */
+    // Methods every object has; never Minecraft's to rename.
+    static final Set<String> OBJECT_METHODS = new HashSet<>(Arrays.asList(
+        "equals (Ljava/lang/Object;)Z", "hashCode ()I", "toString ()Ljava/lang/String;", "getClass ()Ljava/lang/Class;",
+        "clone ()Ljava/lang/Object;", "notify ()V", "notifyAll ()V", "wait ()V", "wait (J)V", "wait (JI)V", "finalize ()V"));
+
     static String resolve(String owner, String name, String desc, boolean method) {
+        if (owner.startsWith("[") || (method && OBJECT_METHODS.contains(name + " " + desc))) {
+            return name; // an array, or a java.lang.Object method
+        }
         Deque<String> queue = new ArrayDeque<>(Collections.singleton(owner));
         Set<String> seen = new HashSet<>();
         boolean touchedMinecraft = false;

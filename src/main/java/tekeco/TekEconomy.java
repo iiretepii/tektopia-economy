@@ -18,7 +18,7 @@ import tekeco.wallet.WalletCapability;
 public class TekEconomy {
     public static final String MODID = "tekeco";
     public static final String NAME = "TekTopia Economy";
-    public static final String VERSION = "0.4.0";
+    public static final String VERSION = "0.5.0";
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {

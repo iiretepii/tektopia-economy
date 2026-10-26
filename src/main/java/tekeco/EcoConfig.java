@@ -79,6 +79,9 @@ public class EcoConfig {
     @Config.Comment("If true, players standing in a village see payday and Tradesman sale notices above the hotbar.")
     public static boolean actionBarNotices = true;
 
+    @Config.Comment("If true, signs in a village whose first line is [Treasury], [Payday], [Tradesman] or [Tavern] show that village's numbers.")
+    public static boolean signBoards = true;
+
     @Config.Comment("Emeralds a villager on the payroll pays for an evening at the Tavern, once per day. 0 makes the Tavern free.")
     @Config.RangeInt(min = 0)
     public static int tavernTab = 1;

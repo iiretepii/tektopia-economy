@@ -55,6 +55,24 @@ Stand inside a village and use:
 
 Sneak and right-click a villager with an empty hand to see their wallet, and whether they've been turned away from the Tavern.
 
+### Sign boards
+
+Place a sign anywhere in a village and write one of these on its first line: `[Treasury]`, `[Payday]`, `[Tradesman]` or `[Tavern]` (any capitalization). Within a few seconds the mod fills in the other three lines and keeps them up to date. A row of them on a wall makes a status board:
+
+```
+ [Treasury]        [Payday]          [Tradesman]       [Tavern]
+ 120 emeralds      Yesterday         Today             Last night
+ In 46 Out 41      Paid 14 of 16     Sold 3 trades     Tabs 6 Bard +1
+ Savings 85        Broke: 0          +26 emeralds      Turned away: 1
+```
+
+- **Treasury:** the balance; emeralds in today (rent and food, the treasury's Tavern share, Tradesman sales) and out (wages); and villager savings, counting villagers in loaded chunks.
+- **Payday:** when the last payday was; villagers paid out of those on the payroll; villagers who couldn't afford rent and food.
+- **Tradesman:** when the Tradesman last sold, the trades made and the emeralds earned.
+- **Tavern:** the last Tavern night, tabs paid with the Bard's cut, and villagers turned away. With more than 99 tabs in a night, the Bard's cut is left off to fit; it's still in `/tekeco report`.
+
+Every line fits a 1.12 sign (90 pixels) at its widest value. Numbers over 9,999 show as `12k` or `1.2M`; the balance and savings show in full up to 99,999. Signs use dark colors so they read on wood: dark green for income, dark red for problems. Anyone can set up a board sign. A sign outside a village says so, and so does one in a village without a Town Hall. Set `signBoards = false` to turn this off. Widths assume the default font; a resource pack or Minecraft's "Force Unicode Font" option can change them.
+
 Players standing in a village see a short notice above the hotbar at payday (in red if anyone went unpaid) and when the Tradesman sells to the Merchant. Set `actionBarNotices = false` to turn these off.
 
 All numbers are in `config/tekeco.cfg`, and can also be changed in-game from the Mods menu.
@@ -73,13 +91,13 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 ## Status
 
-The 0.4.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.5.0 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
-- 150 of its 153 Minecraft, Forge and library references appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others). The other 3 are vanilla Minecraft members no sampled mod uses (two click-event actions and `Style.setBold`), which the official mappings declare with the same signatures.
+- 162 of its 166 Minecraft, Forge and library references appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others). The other 4 are vanilla Minecraft members no sampled mod uses (two click-event actions, `Style.setBold` and `World.loadedTileEntityList`), which the official mappings declare with the same signatures.
 
-In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales, Tavern tabs) still needs testing in a world.
+In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales, Tavern tabs, sign boards) still needs testing in a world.
 
 ## Code map
 
@@ -95,6 +113,7 @@ In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco
 | `src/main/java/tekeco/export/` | Tradesman sales and item matching |
 | `src/main/java/tekeco/tavern/` | Tavern tabs |
 | `src/main/java/tekeco/text/` | Styled chat text and action-bar notices |
+| `src/main/java/tekeco/board/` | Sign boards and sign text sizing |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
 | `dist/` | Built mod jars, ready to install |
 | `tools/offline-build/` | Build script for machines without access to Forge's servers |

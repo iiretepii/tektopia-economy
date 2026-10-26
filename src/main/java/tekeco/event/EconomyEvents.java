@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
+import tekeco.board.SignBoards;
 import tekeco.export.TradesmanExports;
 import tekeco.tavern.TavernTabs;
 import tekeco.payroll.Payroll;
@@ -40,6 +41,9 @@ public class EconomyEvents {
             Payroll.run(world);
             TradesmanExports.run(world);
             TavernTabs.run(world);
+            if (EcoConfig.signBoards) {
+                SignBoards.run(world);
+            }
         }
     }
 
