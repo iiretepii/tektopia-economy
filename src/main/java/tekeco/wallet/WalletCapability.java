@@ -38,6 +38,8 @@ public final class WalletCapability {
             tag.setInteger("coins", wallet.getCoins());
             tag.setLong("lastPaidDay", wallet.getLastPaidDay());
             tag.setInteger("lastWage", wallet.getLastWage());
+            tag.setLong("tavernDay", wallet.getTavernDay());
+            tag.setBoolean("tavernBlocked", wallet.isTavernBlocked());
             return tag;
         }
 
@@ -48,6 +50,8 @@ public final class WalletCapability {
                 wallet.setCoins(tag.getInteger("coins"));
                 wallet.setLastPaidDay(tag.hasKey("lastPaidDay") ? tag.getLong("lastPaidDay") : IWallet.NEVER);
                 wallet.setLastWage(tag.getInteger("lastWage"));
+                wallet.setTavernDay(tag.hasKey("tavernDay") ? tag.getLong("tavernDay") : IWallet.NEVER);
+                wallet.setTavernBlocked(tag.getBoolean("tavernBlocked"));
             }
         }
     }

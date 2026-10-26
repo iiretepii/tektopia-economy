@@ -76,6 +76,24 @@ public class EcoConfig {
     @Config.Comment("If true, only operators can change a village's sell list with /tekeco sell.")
     public static boolean sellListRequiresOp = false;
 
+    @Config.Comment("Emeralds a villager on the payroll pays for an evening at the Tavern, once per day. 0 makes the Tavern free.")
+    @Config.RangeInt(min = 0)
+    public static int tavernTab = 1;
+
+    @Config.Comment("Share of each Tavern tab that goes to a Bard performing in that Tavern; the rest goes to the treasury.")
+    @Config.RangeDouble(min = 0.0, max = 1.0)
+    public static double bardShare = 0.25;
+
+    @Config.Comment({
+        "If true, a villager who can't pay the Tavern tab stops visiting the Tavern until they can.",
+        "If false, they lose tavernBrokePenalty happiness instead."
+    })
+    public static boolean tavernTurnsAwayBroke = true;
+
+    @Config.Comment("Happiness lost by a villager who can't pay the Tavern tab, when tavernTurnsAwayBroke is false.")
+    @Config.RangeInt(min = 0, max = 100)
+    public static int tavernBrokePenalty = 5;
+
     /** How many of this exact item and variant the Tradesman must leave in Storage. */
     public static int reserve(ItemStack stack) {
         String spec = ItemSpec.of(stack);

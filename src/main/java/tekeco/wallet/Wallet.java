@@ -4,6 +4,8 @@ public class Wallet implements IWallet {
     private int coins;
     private long lastPaidDay = NEVER;
     private int lastWage;
+    private long tavernDay = NEVER;
+    private boolean tavernBlocked;
 
     @Override
     public int getCoins() {
@@ -52,5 +54,25 @@ public class Wallet implements IWallet {
     @Override
     public void setLastWage(int wage) {
         this.lastWage = wage;
+    }
+
+    @Override
+    public long getTavernDay() {
+        return tavernDay;
+    }
+
+    @Override
+    public void setTavernDay(long day) {
+        this.tavernDay = day;
+    }
+
+    @Override
+    public boolean isTavernBlocked() {
+        return tavernBlocked;
+    }
+
+    @Override
+    public void setTavernBlocked(boolean blocked) {
+        this.tavernBlocked = blocked;
     }
 }

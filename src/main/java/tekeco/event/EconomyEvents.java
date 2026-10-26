@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
 import tekeco.export.TradesmanExports;
+import tekeco.tavern.TavernTabs;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
 import tekeco.treasury.Treasury;
@@ -38,6 +39,7 @@ public class EconomyEvents {
         if (event.phase == TickEvent.Phase.END && !world.isRemote && world.getTotalWorldTime() % Payroll.CHECK_INTERVAL == 0) {
             Payroll.run(world);
             TradesmanExports.run(world);
+            TavernTabs.run(world);
         }
     }
 
@@ -116,6 +118,9 @@ public class EconomyEvents {
             player.sendMessage(new TextComponentTranslation("tekeco.wallet.unpaid", villager.getDisplayName(), wallet.getCoins()));
         } else {
             player.sendMessage(new TextComponentTranslation("tekeco.wallet.info", villager.getDisplayName(), wallet.getCoins(), wallet.getLastWage()));
+        }
+        if (wallet.isTavernBlocked()) {
+            player.sendMessage(new TextComponentTranslation("tekeco.wallet.tavernblocked", villager.getDisplayName(), EcoConfig.tavernTab));
         }
     }
 }

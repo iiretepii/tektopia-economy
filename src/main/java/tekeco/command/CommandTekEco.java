@@ -150,6 +150,13 @@ public class CommandTekEco extends CommandBase {
             player.sendMessage(new TextComponentTranslation("commands.tekeco.report.sales", daysAgo,
                 treasury.getExportTrades(), treasury.getExportIncome()));
         }
+        if (treasury.getTavernDay() < 0) {
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.notavern"));
+        } else {
+            long daysAgo = Payroll.payday(world) - treasury.getTavernDay();
+            player.sendMessage(new TextComponentTranslation("commands.tekeco.report.tavern", daysAgo,
+                treasury.getTavernTabs(), treasury.getTavernIncome(), treasury.getTavernBardPaid(), treasury.getTavernTurnedAway()));
+        }
     }
 
     private void sell(EntityPlayerMP player, Village village, Treasury treasury, String[] args) throws CommandException {

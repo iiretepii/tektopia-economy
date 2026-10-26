@@ -13,6 +13,7 @@ New emeralds come in two ways: the Town Hall's Tradesman sells surplus village g
 | Payday | Once per Minecraft day at `paydayTime`, each loaded villager on the payroll is paid `wage × (1 + skillBonus × skill/100)` from the treasury, then pays `rent + foodCost` back. |
 | Happiness | Unpaid: `-unpaidPenalty`. Can't pay living costs: `-brokePenalty`. Savings at or above `comfortSavings`: `+comfortBonus`. |
 | Estates | When a villager dies, their savings go to the treasury (`estateToTreasury`). |
+| Tavern tabs | Villagers on the payroll pay `tavernTab` (1 emerald) for an evening at the Tavern. A Bard playing there gets `bardShare` (25%) and the treasury the rest. Villagers who can't pay are turned away. See below. |
 | Tradesman sales | Once a day, when the Merchant shows up, the Tradesman sells items on the village's sell list from Storage to the Merchant and puts the emeralds in the treasury. See below. |
 
 Children, nitwits, nomads and TekTopia's vendors (Merchant, Tradesman, Architect) aren't on the payroll. A villager in an unloaded chunk is settled when it loads again. Missed days are not back-paid, and changing the clock with `/time` never pays anyone twice. Paydays follow the world clock, so they stop if `doDaylightCycle` is off.
@@ -31,6 +32,15 @@ When the wandering Merchant arrives, the Tradesman (who lives in the Town Hall) 
 
 Items are written as `modid:name` (any variant) or `modid:name:meta` (one variant), for example `minecraft:dye:4` for lapis or `minecraft:log:2` for birch logs. `*` means anything the Merchant buys, and an empty list means nothing. Set `tradesmanSells = false` to turn Tradesman sales off.
 
+### Tavern tabs
+
+In TekTopia, off-duty villagers spend evenings in the Tavern, where they cheer with a beer and gain happiness, more so when a Bard is performing. The beer itself is only an animation, so this mod charges for the evening rather than per beer:
+
+- A villager on the payroll who is inside a Tavern outside work hours pays `tavernTab` (default 1 emerald) once per day. Children, nitwits, nomads, vendors and the Bard don't pay.
+- If a Bard is in the same Tavern, it gets `bardShare` (default 25%) of the tab and the treasury keeps the rest. Shares smaller than an emerald build up and are paid out in whole emeralds.
+- A villager who can't pay finishes the evening but stops going to the Tavern until they have the tab again. This uses TekTopia's own "visit tavern" setting in the villager's screen; the mod only switches it back on for villagers it switched off. With `tavernTurnsAwayBroke = false` they lose `tavernBrokePenalty` (5) happiness instead.
+- `tavernTab = 0` makes the Tavern free.
+
 ## Playing
 
 Stand inside a village and use:
@@ -38,12 +48,12 @@ Stand inside a village and use:
 - `/tekeco balance`: show the treasury balance.
 - `/tekeco deposit <amount|all>`: move emeralds from your inventory into the treasury.
 - `/tekeco withdraw <amount>`: take emeralds out (operators only if `withdrawRequiresOp` is on).
-- `/tekeco report`: treasury balance, total villager savings, the last payday's wages, upkeep and shortfalls, and the Tradesman's last sale.
+- `/tekeco report`: treasury balance, total villager savings, the last payday's wages, upkeep and shortfalls, the Tradesman's last sale, and the last Tavern night.
 - `/tekeco sell`: show what this village's Tradesman sells.
 - `/tekeco sell add <item>` / `/tekeco sell remove <item>`: change this village's sell list (operators only if `sellListRequiresOp` is on). The first change copies the config list into the village, which keeps its own list from then on.
 - `/tekeco sell reset`: go back to the config list.
 
-Sneak and right-click a villager with an empty hand to see their wallet.
+Sneak and right-click a villager with an empty hand to see their wallet, and whether they've been turned away from the Tavern.
 
 All numbers are in `config/tekeco.cfg`, and can also be changed in-game from the Mods menu.
 
@@ -61,13 +71,13 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 ## Status
 
-The 0.2.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.3.0 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
-- All 123 Minecraft, Forge and library references it makes appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others).
+- All 127 Minecraft, Forge and library references it makes appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others).
 
-In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales) still needs testing in a world.
+In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales, Tavern tabs) still needs testing in a world.
 
 ## Code map
 
@@ -81,6 +91,7 @@ In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco
 | `src/main/java/tekeco/event/EconomyEvents.java` | Attaching wallets, payday ticks, wallet carry-over, estates, wallet inspection |
 | `src/main/java/tekeco/command/CommandTekEco.java` | `/tekeco` command |
 | `src/main/java/tekeco/export/` | Tradesman sales and item matching |
+| `src/main/java/tekeco/tavern/` | Tavern tabs |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
 | `dist/` | Built mod jars, ready to install |
 | `tools/offline-build/` | Build script for machines without access to Forge's servers |

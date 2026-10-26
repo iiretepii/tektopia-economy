@@ -1,5 +1,6 @@
 tekeco.wallet.info=%s has %s emeralds (last wage: %s).
 tekeco.wallet.unpaid=%s has %s emeralds and is not on the payroll.
+tekeco.wallet.tavernblocked=%s can't afford the Tavern and won't go back until they have %s emeralds.
 
 commands.tekeco.usage=/tekeco <balance|deposit <amount|all>|withdraw <amount>|report|sell [list|add|remove|reset]>
 commands.tekeco.novillage=You're not standing in a TekTopia village.
@@ -29,3 +30,5 @@ commands.tekeco.sell.nothing=%s's Tradesman doesn't sell anything.
 commands.tekeco.sell.own=This village has its own list. /tekeco sell reset goes back to the config list.
 commands.tekeco.sell.default=This is the config list (tradesmanItems in tekeco.cfg).
 commands.tekeco.sell.disabled=Tradesman selling is turned off in the config (tradesmanSells).
+commands.tekeco.report.notavern=No Tavern tabs yet.
+commands.tekeco.report.tavern=Last Tavern night (%s days ago): %s tabs paid, %s emeralds to the treasury, %s to the Bard. Turned away: %s.

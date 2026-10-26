@@ -13,7 +13,7 @@ import tekeco.EcoConfig;
 
 /**
  * One village's emerald balance, its Tradesman's sell list, and the totals from its most
- * recent payday and Tradesman sale.
+ * recent payday, Tradesman sale and Tavern night.
  */
 public class Treasury {
     private int balance;
@@ -32,6 +32,14 @@ public class Treasury {
     private long exportDay = -1L;
     private int exportIncome;
     private int exportTrades;
+
+    private long tavernDay = -1L;
+    private int tavernTabs;
+    private int tavernIncome;
+    private int tavernBardPaid;
+    private int tavernTurnedAway;
+    /** Bard's share of tabs not yet paid out, since tabs are whole emeralds but the share is a fraction. */
+    private double bardCredit;
 
     public int getBalance() {
         return balance;
@@ -148,6 +156,60 @@ public class Treasury {
         return exportIncome;
     }
 
+    /** Starts fresh Tavern totals the first time a tab is charged on {@code day}. */
+    public void beginTavernDay(long day) {
+        if (tavernDay != day) {
+            tavernDay = day;
+            tavernTabs = 0;
+            tavernIncome = 0;
+            tavernBardPaid = 0;
+            tavernTurnedAway = 0;
+        }
+    }
+
+    public void recordTab(int amount) {
+        tavernTabs++;
+        tavernIncome += amount;
+    }
+
+    public void recordTurnedAway() {
+        tavernTurnedAway++;
+    }
+
+    /** Adds to the Bard's credit and returns the whole emeralds now owed, paid from the treasury. */
+    public int payBard(double share) {
+        bardCredit += share;
+        int owed = (int) Math.floor(bardCredit);
+        if (owed > 0 && withdraw(owed)) {
+            bardCredit -= owed;
+            tavernIncome -= owed;
+            tavernBardPaid += owed;
+            return owed;
+        }
+        return 0;
+    }
+
+    public long getTavernDay() {
+        return tavernDay;
+    }
+
+    public int getTavernTabs() {
+        return tavernTabs;
+    }
+
+    /** Tab money the treasury kept after the Bard's share. */
+    public int getTavernIncome() {
+        return tavernIncome;
+    }
+
+    public int getTavernBardPaid() {
+        return tavernBardPaid;
+    }
+
+    public int getTavernTurnedAway() {
+        return tavernTurnedAway;
+    }
+
     void readFromNBT(NBTTagCompound tag) {
         balance = tag.getInteger("balance");
         statsDay = tag.hasKey("statsDay") ? tag.getLong("statsDay") : -1L;
@@ -168,6 +230,12 @@ public class Treasury {
         exportDay = tag.hasKey("exportDay") ? tag.getLong("exportDay") : -1L;
         exportTrades = tag.getInteger("exportTrades");
         exportIncome = tag.getInteger("exportIncome");
+        tavernDay = tag.hasKey("tavernDay") ? tag.getLong("tavernDay") : -1L;
+        tavernTabs = tag.getInteger("tavernTabs");
+        tavernIncome = tag.getInteger("tavernIncome");
+        tavernBardPaid = tag.getInteger("tavernBardPaid");
+        tavernTurnedAway = tag.getInteger("tavernTurnedAway");
+        bardCredit = tag.getDouble("bardCredit");
     }
 
     void writeToNBT(NBTTagCompound tag) {
@@ -188,5 +256,11 @@ public class Treasury {
         tag.setLong("exportDay", exportDay);
         tag.setInteger("exportTrades", exportTrades);
         tag.setInteger("exportIncome", exportIncome);
+        tag.setLong("tavernDay", tavernDay);
+        tag.setInteger("tavernTabs", tavernTabs);
+        tag.setInteger("tavernIncome", tavernIncome);
+        tag.setInteger("tavernBardPaid", tavernBardPaid);
+        tag.setInteger("tavernTurnedAway", tavernTurnedAway);
+        tag.setDouble("bardCredit", bardCredit);
     }
 }

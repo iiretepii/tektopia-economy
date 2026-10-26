@@ -22,6 +22,16 @@ public interface IWallet {
 
     void setLastWage(int wage);
 
+    /** The last day this villager paid a Tavern tab or was turned away, or {@link #NEVER}. */
+    long getTavernDay();
+
+    void setTavernDay(long day);
+
+    /** True while this mod has switched off the villager's Tavern visits because they couldn't pay. */
+    boolean isTavernBlocked();
+
+    void setTavernBlocked(boolean blocked);
+
     default boolean isNew() {
         return getLastPaidDay() == NEVER;
     }
@@ -30,5 +40,7 @@ public interface IWallet {
         setCoins(other.getCoins());
         setLastPaidDay(other.getLastPaidDay());
         setLastWage(other.getLastWage());
+        setTavernDay(other.getTavernDay());
+        setTavernBlocked(other.isTavernBlocked());
     }
 }
