@@ -13,17 +13,16 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.tangotek.tektopia.ProfessionType;
 import net.tangotek.tektopia.Village;
-import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
 import tekeco.treasury.Treasury;
-import tekeco.wallet.IWallet;
-import tekeco.wallet.WalletCapability;
 
 /**
  * Keeps economy signs up to date. A sign in a village whose first line is [Treasury], [Payday],
- * [Tradesman] or [Tavern] gets its other three lines filled in with that village's numbers.
+ * [Tradesman], [Tavern], [Morale], [Hunger] or [Skills] gets its other lines filled in with that
+ * village's numbers. On a [Skills] sign, line 2 can name a profession; it's kept as written.
  *
  * Every line fits a 1.12 sign at its widest value; see README.md for the layouts. Colors are the
  * dark ones, because signs are light wood.
@@ -33,14 +32,19 @@ public final class SignBoards {
     private static final TextFormatting GOOD = TextFormatting.DARK_GREEN;
     private static final TextFormatting BAD = TextFormatting.DARK_RED;
     private static final TextFormatting PLAIN = TextFormatting.BLACK;
+    private static final String ALL_JOBS = "All jobs";
 
     private enum Board {
-        TREASURY("[Treasury]"), PAYDAY("[Payday]"), TRADESMAN("[Tradesman]"), TAVERN("[Tavern]");
+        TREASURY("[Treasury]", true), PAYDAY("[Payday]", true), TRADESMAN("[Tradesman]", true), TAVERN("[Tavern]", true),
+        MORALE("[Morale]", false), HUNGER("[Hunger]", false), SKILLS("[Skills]", false);
 
         final String keyword;
+        /** Whether the board shows treasury numbers, and so needs a Town Hall. */
+        final boolean needsTreasury;
 
-        Board(String keyword) {
+        Board(String keyword, boolean needsTreasury) {
             this.keyword = keyword;
+            this.needsTreasury = needsTreasury;
         }
 
         static Board of(String firstLine) {
@@ -59,7 +63,7 @@ public final class SignBoards {
 
     public static void run(World world) {
         long today = Payroll.payday(world);
-        Map<Village, int[]> savings = new IdentityHashMap<>();
+        Map<Village, VillageStats> stats = new IdentityHashMap<>();
         List<TileEntity> tiles = new ArrayList<>(world.loadedTileEntityList);
         for (TileEntity tile : tiles) {
             if (!(tile instanceof TileEntitySign)) {
@@ -74,19 +78,27 @@ public final class SignBoards {
             Treasury treasury = Villages.treasury(world, village);
             ITextComponent[] lines = new ITextComponent[4];
             lines[0] = styled(new TextComponentString(board.keyword), HEADER);
-            if (treasury == null) {
-                lines[1] = new TextComponentTranslation(village == null ? "tekeco.sign.novillage" : "tekeco.sign.notownhall");
-                lines[2] = new TextComponentString("");
-                lines[3] = new TextComponentString("");
+            String problem = village == null ? "tekeco.sign.novillage" : board.needsTreasury && treasury == null ? "tekeco.sign.notownhall" : null;
+            if (problem != null) {
+                // A Skills sign keeps the profession written on line 2.
+                int at = board == Board.SKILLS ? 2 : 1;
+                for (int i = 1; i < 4; i++) {
+                    lines[i] = i == at ? new TextComponentTranslation(problem) : new TextComponentString("");
+                }
+                if (board == Board.SKILLS) {
+                    lines[1] = sign.signText[1];
+                }
             } else {
-                fill(board, lines, world, village, treasury, today, savings);
+                VillageStats villageStats = board.needsTreasury && board != Board.TREASURY ? null
+                    : stats.computeIfAbsent(village, v -> VillageStats.of(world, v));
+                fill(board, lines, sign, treasury, villageStats, today);
             }
             update(world, sign, lines);
         }
     }
 
-    private static void fill(Board board, ITextComponent[] lines, World world, Village village, Treasury treasury,
-                             long today, Map<Village, int[]> savings) {
+    private static void fill(Board board, ITextComponent[] lines, TileEntitySign sign, Treasury treasury,
+                             VillageStats stats, long today) {
         switch (board) {
             case TREASURY: {
                 int balance = treasury.getBalance();
@@ -94,7 +106,7 @@ public final class SignBoards {
                     + (treasury.getExportDay() == today ? treasury.getExportIncome() : 0)
                     + (treasury.getTavernDay() == today ? treasury.getTavernIncome() : 0);
                 int out = treasury.getStatsDay() == today ? treasury.getWagesPaid() : 0;
-                int saved = savings.computeIfAbsent(village, v -> new int[] {savingsOf(world, v)})[0];
+                int saved = stats.savings;
                 lines[1] = line("tekeco.sign.treasury.balance", value(SignText.number(balance, 99_999L), balance > 0 ? GOOD : BAD));
                 lines[2] = line("tekeco.sign.treasury.flow", value(SignText.number(in), in > 0 ? GOOD : PLAIN),
                     value(SignText.number(out), PLAIN));
@@ -145,24 +157,79 @@ public final class SignBoards {
                 lines[3] = line("tekeco.sign.tavern.away", value(SignText.number(away), away > 0 ? BAD : GOOD));
                 break;
             }
+            case MORALE: {
+                if (stats.residents == 0) {
+                    noneYet(lines, "tekeco.sign.noresidents");
+                    break;
+                }
+                lines[1] = line("tekeco.sign.morale.average", band(stats.happyAverage()));
+                lines[2] = line("tekeco.sign.morale.sulking", value(SignText.number(stats.sulking, 999), stats.sulking > 0 ? BAD : GOOD),
+                    value(SignText.number(stats.residents, 999), PLAIN));
+                lines[3] = line("tekeco.sign.morale.lowest", band(stats.happyLowest));
+                break;
+            }
+            case HUNGER: {
+                if (stats.residents == 0) {
+                    noneYet(lines, "tekeco.sign.noresidents");
+                    break;
+                }
+                lines[1] = line("tekeco.sign.hunger.average", band(stats.hungerAverage()));
+                lines[2] = line("tekeco.sign.hunger.hungry", value(SignText.number(stats.hungry, 999), stats.hungry > 0 ? BAD : GOOD),
+                    value(SignText.number(stats.residents, 999), PLAIN));
+                lines[3] = line("tekeco.sign.hunger.starving", value(SignText.number(stats.starving), stats.starving > 0 ? BAD : GOOD));
+                break;
+            }
+            case SKILLS: {
+                String written = sign.signText[1].getUnformattedText().trim();
+                String key = written.toLowerCase(Locale.ROOT);
+                if (key.isEmpty() || key.equals("all") || key.equals("all jobs")) {
+                    // Plain text, not a translation: line 2 is read back on the next update.
+                    lines[1] = new TextComponentString(ALL_JOBS);
+                    if (stats.workers == 0) {
+                        lines[2] = new TextComponentTranslation("tekeco.sign.skills.noworkers");
+                        lines[3] = new TextComponentString("");
+                        break;
+                    }
+                    lines[2] = line("tekeco.sign.skills.average", band(stats.skillAverage()));
+                    lines[3] = line("tekeco.sign.skills.intelligence", band(stats.intelligenceAverage()));
+                    break;
+                }
+                lines[1] = sign.signText[1];
+                ProfessionType profession = profession(key);
+                if (profession == null) {
+                    lines[2] = new TextComponentTranslation("tekeco.sign.skills.unknown");
+                    lines[3] = new TextComponentString("");
+                    break;
+                }
+                VillageStats.Job job = stats.jobs.get(profession);
+                int count = job == null ? 0 : job.count;
+                lines[2] = count == 0 ? new TextComponentTranslation("tekeco.sign.skills.nobody")
+                    : line("tekeco.sign.skills.job", band(job.average()), band(job.skillTop));
+                lines[3] = line("tekeco.sign.skills.count", value(SignText.number(count), PLAIN));
+                break;
+            }
         }
+    }
+
+    /** A profession by its TekTopia name (farmer, miner, ...), if it's one with a skill. */
+    private static ProfessionType profession(String name) {
+        for (ProfessionType profession : ProfessionType.values()) {
+            if (profession.name.equals(name) && VillageStats.hasJob(profession)) {
+                return profession;
+            }
+        }
+        return null;
+    }
+
+    /** A 0-100 value colored by how good it is: dark green from 60, black from 30, dark red below. */
+    private static ITextComponent band(int value) {
+        return value(SignText.number(value), value >= 60 ? GOOD : value >= 30 ? PLAIN : BAD);
     }
 
     private static void noneYet(ITextComponent[] lines, String key) {
         lines[1] = new TextComponentTranslation(key);
         lines[2] = new TextComponentString("");
         lines[3] = new TextComponentString("");
-    }
-
-    private static int savingsOf(World world, Village village) {
-        int total = 0;
-        for (EntityVillagerTek v : world.getEntities(EntityVillagerTek.class, v -> v != null && v.isEntityAlive() && v.getVillage() == village)) {
-            IWallet wallet = WalletCapability.get(v);
-            if (wallet != null) {
-                total += wallet.getCoins();
-            }
-        }
-        return total;
     }
 
     private static ITextComponent days(long daysAgo) {

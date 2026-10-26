@@ -57,7 +57,7 @@ Sneak and right-click a villager with an empty hand to see their wallet, and whe
 
 ### Sign boards
 
-Place a sign anywhere in a village and write one of these on its first line: `[Treasury]`, `[Payday]`, `[Tradesman]` or `[Tavern]` (any capitalization). Within a few seconds the mod fills in the other three lines and keeps them up to date. A row of them on a wall makes a status board:
+Place a sign anywhere in a village and write one of these on its first line: `[Treasury]`, `[Payday]`, `[Tradesman]`, `[Tavern]`, `[Morale]`, `[Hunger]` or `[Skills]` (any capitalization). Within a few seconds the mod fills in the other three lines and keeps them up to date. A row of them on a wall makes a status board:
 
 ```
  [Treasury]        [Payday]          [Tradesman]       [Tavern]
@@ -71,7 +71,22 @@ Place a sign anywhere in a village and write one of these on its first line: `[T
 - **Tradesman:** when the Tradesman last sold, the trades made and the emeralds earned.
 - **Tavern:** the last Tavern night, tabs paid with the Bard's cut, and villagers turned away. With more than 99 tabs in a night, the Bard's cut is left off to fit; it's still in `/tekeco report`.
 
-Every line fits a 1.12 sign (90 pixels) at its widest value. Numbers over 9,999 show as `12k` or `1.2M`; the balance and savings show in full up to 99,999. Signs use dark colors so they read on wood: dark green for income, dark red for problems. Anyone can set up a board sign. A sign outside a village says so, and so does one in a village without a Town Hall. Set `signBoards = false` to turn this off. Widths assume the default font; a resource pack or Minecraft's "Force Unicode Font" option can change them.
+The village boards show how villagers are doing:
+
+```
+ [Morale]          [Hunger]          [Skills]          [Skills]
+ Happy avg 72      Fed avg 64        All jobs          Miner
+ Sulking: 3/16     Hungry: 2/16      Skill avg 41      Avg 41 Top 88
+ Lowest: 12        Starving: 0       Intel avg 34      Count: 4
+```
+
+- **Morale:** average happiness; villagers sulking (below 20, when TekTopia makes them walk slowly and barely work) out of all; the lowest happiness.
+- **Hunger:** average hunger (100 is full); villagers hungry (below 30, when they go looking for food) out of all; villagers starving (at 0).
+- **Skills:** leave line 2 blank (it becomes `All jobs`) for the average skill in each villager's own profession and the average intelligence. Or write a profession on line 2, such as `Miner` or `Lumberjack`, for that profession's average and best skill and how many villagers have it.
+
+These count the village's residents in loaded chunks (workers, children and nitwits), not vendors or visiting nomads; Skills counts only villagers with a profession. Averages are dark green from 60, black from 30 and dark red below 30. These boards work before the village has a Town Hall.
+
+Every line fits a 1.12 sign (90 pixels) at its widest value. Numbers over 9,999 show as `12k` or `1.2M`; the balance and savings show in full up to 99,999, and the sulking and hungry counts switch to `1k` above 999. Signs use dark colors so they read on wood: dark green for income, dark red for problems. Anyone can set up a board sign. A sign outside a village says so, and so does one in a village without a Town Hall. Set `signBoards = false` to turn this off. Widths assume the default font; a resource pack or Minecraft's "Force Unicode Font" option can change them.
 
 Players standing in a village see a short notice above the hotbar at payday (in red if anyone went unpaid) and when the Tradesman sells to the Merchant. Set `actionBarNotices = false` to turn these off.
 
@@ -91,7 +106,7 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 ## Status
 
-The 0.5.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.6.0 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
@@ -113,7 +128,7 @@ In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco
 | `src/main/java/tekeco/export/` | Tradesman sales and item matching |
 | `src/main/java/tekeco/tavern/` | Tavern tabs |
 | `src/main/java/tekeco/text/` | Styled chat text and action-bar notices |
-| `src/main/java/tekeco/board/` | Sign boards and sign text sizing |
+| `src/main/java/tekeco/board/` | Sign boards, sign text sizing and village statistics |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
 | `dist/` | Built mod jars, ready to install |
 | `tools/offline-build/` | Build script for machines without access to Forge's servers |
