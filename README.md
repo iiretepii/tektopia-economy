@@ -87,7 +87,7 @@ The village boards show how villagers are doing:
 
 These count the village's residents in loaded chunks (workers, children and nitwits), not vendors or visiting nomads; Skills counts only villagers with a profession. Averages are dark green from 60, black from 30 and dark red below 30. These boards work before the village has a Town Hall.
 
-Every line fits a 1.12 sign (90 pixels) at its widest value. Numbers over 9,999 show as `12k` or `1.2M`; the balance and savings show in full up to 99,999, and the sulking and hungry counts switch to `1k` above 999. Signs use dark colors so they read on wood: dark green for income, dark red for problems. Anyone can set up a board sign. A sign outside a village says so, and so does one in a village without a Town Hall. Set `signBoards = false` to turn this off. Widths assume the default font; a resource pack or Minecraft's "Force Unicode Font" option can change them.
+Every line fits a 1.12 sign (90 pixels) at its widest value. Numbers over 9,999 show as `12k` or `1.2M`; the balance and savings show in full up to 99,999, and the sulking and hungry counts switch to `1k` above 999. Signs use dark colors so they read on wood: a dark blue title, dark green for income, dark red for problems. Anyone can set up a board sign. A sign outside a village says so, and so does one in a village without a Town Hall. Set `signBoards = false` to turn this off. Widths assume the default font; a resource pack or Minecraft's "Force Unicode Font" option can change them.
 
 ### Morale report
 
@@ -130,7 +130,7 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 ## Status
 
-The 0.7.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.7.1 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.

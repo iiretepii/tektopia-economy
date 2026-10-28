@@ -28,7 +28,7 @@ import tekeco.treasury.Treasury;
  * dark ones, because signs are light wood.
  */
 public final class SignBoards {
-    private static final TextFormatting HEADER = TextFormatting.GOLD;
+    private static final TextFormatting HEADER = TextFormatting.DARK_BLUE;
     private static final TextFormatting GOOD = TextFormatting.DARK_GREEN;
     private static final TextFormatting BAD = TextFormatting.DARK_RED;
     private static final TextFormatting PLAIN = TextFormatting.BLACK;
