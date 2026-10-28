@@ -1,0 +1,1 @@
+package net.minecraft.inventory; import net.minecraft.item.ItemStack; public class InventoryBasic implements IInventory { public int getSizeInventory(){return 0;} public ItemStack getStackInSlot(int i){return null;} public void markDirty(){} }

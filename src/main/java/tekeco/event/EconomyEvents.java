@@ -10,9 +10,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.tangotek.tektopia.ProfessionType;
+import net.tangotek.tektopia.VillagerRole;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
 import tekeco.board.SignBoards;
@@ -92,6 +95,44 @@ public class EconomyEvents {
         if (treasury != null) {
             treasury.deposit(wallet.getCoins());
             wallet.setCoins(0);
+            TreasuryData.get(villager.world).markDirty();
+        }
+    }
+
+    /**
+     * Notes deaths for /tekeco morale. TekTopia only upsets the village when the villager who died
+     * had a bed, and twice as much for a child.
+     */
+    @SubscribeEvent
+    public void recordDeath(LivingDeathEvent event) {
+        if (event.getEntityLiving().world.isRemote || !(event.getEntityLiving() instanceof EntityVillagerTek)) {
+            return;
+        }
+        EntityVillagerTek villager = (EntityVillagerTek) event.getEntityLiving();
+        if (!villager.hasVillage() || villager.getBedPos() == null) {
+            return;
+        }
+        Treasury treasury = Villages.treasury(villager.world, villager.getVillage());
+        if (treasury != null) {
+            long today = Payroll.payday(villager.world);
+            (villager.getProfessionType() == ProfessionType.CHILD ? treasury.childDeaths : treasury.deaths).add(today);
+            TreasuryData.get(villager.world).markDirty();
+        }
+    }
+
+    /** Notes injuries for /tekeco morale. Defenders (Guards, Clerics) don't mind getting hurt. */
+    @SubscribeEvent
+    public void recordInjury(LivingHurtEvent event) {
+        if (event.getEntityLiving().world.isRemote || !(event.getEntityLiving() instanceof EntityVillagerTek) || event.getAmount() <= 0) {
+            return;
+        }
+        EntityVillagerTek villager = (EntityVillagerTek) event.getEntityLiving();
+        if (!villager.hasVillage() || villager.isRole(VillagerRole.DEFENDER)) {
+            return;
+        }
+        Treasury treasury = Villages.treasury(villager.world, villager.getVillage());
+        if (treasury != null) {
+            treasury.injuries.add(Payroll.payday(villager.world));
             TreasuryData.get(villager.world).markDirty();
         }
     }

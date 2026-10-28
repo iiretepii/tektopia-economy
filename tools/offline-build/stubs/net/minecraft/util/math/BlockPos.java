@@ -1,1 +1,1 @@
-package net.minecraft.util.math; public class BlockPos {}
+package net.minecraft.util.math; public class BlockPos extends Vec3i {}

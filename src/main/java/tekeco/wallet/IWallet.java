@@ -32,6 +32,14 @@ public interface IWallet {
 
     void setTavernBlocked(boolean blocked);
 
+    /** True if the treasury couldn't pay this villager at their last payday. */
+    boolean wasUnpaid();
+
+    /** True if this villager couldn't afford rent and food at their last payday. */
+    boolean wasBroke();
+
+    void setPaydayResult(boolean unpaid, boolean broke);
+
     default boolean isNew() {
         return getLastPaidDay() == NEVER;
     }
@@ -42,5 +50,6 @@ public interface IWallet {
         setLastWage(other.getLastWage());
         setTavernDay(other.getTavernDay());
         setTavernBlocked(other.isTavernBlocked());
+        setPaydayResult(other.wasUnpaid(), other.wasBroke());
     }
 }

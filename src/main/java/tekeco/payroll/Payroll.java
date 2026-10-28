@@ -8,6 +8,7 @@ import net.tangotek.tektopia.ProfessionType;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
+import tekeco.board.VillageStats;
 import tekeco.text.Notices;
 import tekeco.treasury.Treasury;
 import tekeco.treasury.TreasuryData;
@@ -49,6 +50,7 @@ public final class Payroll {
             for (Village village : paid) {
                 Treasury treasury = Villages.treasury(world, village);
                 if (treasury != null) {
+                    treasury.recordMorale(today, VillageStats.of(world, village).happyAverage());
                     Notices.payday(world, village, treasury);
                 }
             }
@@ -88,12 +90,15 @@ public final class Payroll {
         wallet.setLastPaidDay(today);
 
         int wage = EcoConfig.wage(profession, villager.getSkill(profession));
+        boolean unpaid = false;
+        boolean broke = false;
         if (treasury.withdraw(wage)) {
             wallet.add(wage);
             wallet.setLastWage(wage);
             treasury.recordPaid(wage);
         } else {
             wallet.setLastWage(0);
+            unpaid = true;
             treasury.recordUnpaid();
             villager.modifyHappy(-EcoConfig.unpaidPenalty);
         }
@@ -106,9 +111,11 @@ public final class Payroll {
                 villager.modifyHappy(EcoConfig.comfortBonus);
             }
         } else {
+            broke = true;
             treasury.recordBroke();
             villager.modifyHappy(-EcoConfig.brokePenalty);
         }
+        wallet.setPaydayResult(unpaid, broke);
         return true;
     }
 }

@@ -52,6 +52,7 @@ Stand inside a village and use:
 - `/tekeco sell`: show what this village's Tradesman sells.
 - `/tekeco sell add <item>` / `/tekeco sell remove <item>`: change this village's sell list (operators only if `sellListRequiresOp` is on). The first change copies the config list into the village, which keeps its own list from then on.
 - `/tekeco sell reset`: go back to the config list.
+- `/tekeco morale`: why villagers are unhappy. See below.
 
 Sneak and right-click a villager with an empty hand to see their wallet, and whether they've been turned away from the Tavern.
 
@@ -88,6 +89,29 @@ These count the village's residents in loaded chunks (workers, children and nitw
 
 Every line fits a 1.12 sign (90 pixels) at its widest value. Numbers over 9,999 show as `12k` or `1.2M`; the balance and savings show in full up to 99,999, and the sulking and hungry counts switch to `1k` above 999. Signs use dark colors so they read on wood: dark green for income, dark red for problems. Anyone can set up a board sign. A sign outside a village says so, and so does one in a village without a Town Hall. Set `signBoards = false` to turn this off. Widths assume the default font; a resource pack or Minecraft's "Force Unicode Font" option can change them.
 
+### Morale report
+
+`/tekeco morale` shows the average happiness and how it changed since the last payday, how many villagers are sulking, every likely cause of unhappiness (biggest first), and the five unhappiest villagers with what's wrong for each. Hover over a cause for what it costs and how to fix it, and over a villager for where they are.
+
+TekTopia doesn't record why happiness changes, so causes are worked out from its rules:
+
+| Cause | TekTopia's effect |
+|---|---|
+| Villager deaths since yesterday | -25 to -40 for every villager with a bed (twice that for a child) |
+| Injuries today | -8 each (Guards and Clerics don't mind) |
+| Nitwits | -1 every minute awake, and only a third of any boost |
+| No bed | Miss the +10 to 30 from waking up rested |
+| Hungry or starving | Eating is one of the main boosts |
+| Workers without their tool | -5 each time they craft one (hoe, axe, pickaxe or weapon) |
+| Leashed | Slowly lose happiness |
+| Unpaid, or couldn't afford rent and food, at the last payday | `unpaidPenalty`, `brokePenalty` |
+| Turned away from the Tavern | Miss Tavern evenings |
+| Children at school | Sometimes sulk, -10 |
+| Crowded buildings or low ceilings | Up to -5 each time a villager enters |
+| No Tavern, no Bard, no Library | Fewer ways to get happier |
+
+Causes are sorted by a rough estimate: villagers affected times the usual penalty. Everyday work, which slowly lowers everyone's happiness, isn't listed, and neither is being scared by monsters; neither can be pinned on anything. Only villagers in loaded chunks are counted. Deaths, injuries and the trend need a Town Hall; the rest works without one.
+
 Players standing in a village see a short notice above the hotbar at payday (in red if anyone went unpaid) and when the Tradesman sells to the Merchant. Set `actionBarNotices = false` to turn these off.
 
 All numbers are in `config/tekeco.cfg`, and can also be changed in-game from the Mods menu.
@@ -106,13 +130,13 @@ TekTopia is closed source and isn't on any Maven repository, so you supply the j
 
 ## Status
 
-The 0.6.0 jar was built with `tools/offline-build/build.sh`, with these checks:
+The 0.7.0 jar was built with `tools/offline-build/build.sh`, with these checks:
 
 - It compiles against the real TekTopia 1.1.0 jar.
 - Every Minecraft reference maps to a runtime name in the official mappings, with a matching signature.
-- 162 of its 166 Minecraft, Forge and library references appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others). The other 4 are vanilla Minecraft members no sampled mod uses (two click-event actions, `Style.setBold` and `World.loadedTileEntityList`), which the official mappings declare with the same signatures.
+- 167 of its 171 Minecraft, Forge and library references appear, with the same signatures, in real 1.12.2 mods (Twilight Forest, Millénaire, Mowzie's Mobs, Quark, TekTopia and others). The other 4 are vanilla Minecraft members no sampled mod uses (two click-event actions, `Style.setBold` and `World.loadedTileEntityList`), which the official mappings declare with the same signatures.
 
-In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales, Tavern tabs, sign boards) still needs testing in a world.
+In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco.balance`) instead of text, because the jar had no `pack.mcmeta`, so Minecraft didn't load `en_us.lang`. 0.1.1 adds it. Gameplay itself (payday timing, wage amounts, the wallet carry-over when villagers change profession, Tradesman sales, Tavern tabs, sign boards, the morale report) still needs testing in a world.
 
 ## Code map
 
@@ -129,6 +153,7 @@ In 0.1.0 the chat messages showed raw translation keys (such as `commands.tekeco
 | `src/main/java/tekeco/tavern/` | Tavern tabs |
 | `src/main/java/tekeco/text/` | Styled chat text and action-bar notices |
 | `src/main/java/tekeco/board/` | Sign boards, sign text sizing and village statistics |
+| `src/main/java/tekeco/morale/` | The `/tekeco morale` report |
 | `docs/design.md` | Notes on TekTopia's internals and the economy design |
 | `dist/` | Built mod jars, ready to install |
 | `tools/offline-build/` | Build script for machines without access to Forge's servers |

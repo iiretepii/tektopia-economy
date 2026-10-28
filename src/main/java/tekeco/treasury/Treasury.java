@@ -13,7 +13,7 @@ import tekeco.EcoConfig;
 
 /**
  * One village's emerald balance, its Tradesman's sell list, and the totals from its most
- * recent payday, Tradesman sale and Tavern night.
+ * recent payday, Tradesman sale and Tavern night, plus recent events that affect morale.
  */
 public class Treasury {
     private int balance;
@@ -40,6 +40,15 @@ public class Treasury {
     private int tavernTurnedAway;
     /** Bard's share of tabs not yet paid out, since tabs are whole emeralds but the share is a fraction. */
     private double bardCredit;
+
+    /** Deaths of villagers with a bed (which upset the whole village) and injuries, by day. */
+    public final DayCounts deaths = new DayCounts();
+    public final DayCounts childDeaths = new DayCounts();
+    public final DayCounts injuries = new DayCounts();
+
+    /** Average happiness at the most recent payday, to show a trend. */
+    private long moraleDay = -1L;
+    private int moraleAverage;
 
     public int getBalance() {
         return balance;
@@ -210,6 +219,22 @@ public class Treasury {
         return tavernTurnedAway;
     }
 
+    /** Records the village's average happiness, once per payday. */
+    public void recordMorale(long day, int average) {
+        if (moraleDay != day) {
+            moraleDay = day;
+            moraleAverage = average;
+        }
+    }
+
+    public long getMoraleDay() {
+        return moraleDay;
+    }
+
+    public int getMoraleAverage() {
+        return moraleAverage;
+    }
+
     void readFromNBT(NBTTagCompound tag) {
         balance = tag.getInteger("balance");
         statsDay = tag.hasKey("statsDay") ? tag.getLong("statsDay") : -1L;
@@ -236,6 +261,11 @@ public class Treasury {
         tavernBardPaid = tag.getInteger("tavernBardPaid");
         tavernTurnedAway = tag.getInteger("tavernTurnedAway");
         bardCredit = tag.getDouble("bardCredit");
+        deaths.readFromNBT(tag, "deaths");
+        childDeaths.readFromNBT(tag, "childDeaths");
+        injuries.readFromNBT(tag, "injuries");
+        moraleDay = tag.hasKey("moraleDay") ? tag.getLong("moraleDay") : -1L;
+        moraleAverage = tag.getInteger("moraleAverage");
     }
 
     void writeToNBT(NBTTagCompound tag) {
@@ -262,5 +292,10 @@ public class Treasury {
         tag.setInteger("tavernBardPaid", tavernBardPaid);
         tag.setInteger("tavernTurnedAway", tavernTurnedAway);
         tag.setDouble("bardCredit", bardCredit);
+        tag.setTag("deaths", deaths.writeToNBT());
+        tag.setTag("childDeaths", childDeaths.writeToNBT());
+        tag.setTag("injuries", injuries.writeToNBT());
+        tag.setLong("moraleDay", moraleDay);
+        tag.setInteger("moraleAverage", moraleAverage);
     }
 }

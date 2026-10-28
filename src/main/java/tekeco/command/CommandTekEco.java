@@ -23,6 +23,7 @@ import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
 import tekeco.EcoConfig;
 import tekeco.export.ItemSpec;
+import tekeco.morale.MoraleReport;
 import tekeco.payroll.Payroll;
 import tekeco.payroll.Villages;
 import tekeco.text.Messages;
@@ -32,7 +33,7 @@ import tekeco.wallet.IWallet;
 import tekeco.wallet.WalletCapability;
 
 /**
- * /tekeco balance | deposit <amount|all> | withdraw <amount> | report | sell [list|add|remove|reset],
+ * /tekeco balance | deposit <amount|all> | withdraw <amount> | report | sell [list|add|remove|reset] | morale,
  * for the village you're standing in.
  */
 public class CommandTekEco extends CommandBase {
@@ -66,6 +67,11 @@ public class CommandTekEco extends CommandBase {
         World world = player.world;
         Village village = Villages.at(world, player.getPosition());
         Treasury treasury = Villages.treasury(world, village);
+        if ("morale".equals(args[0]) && village != null) {
+            // Works without a Town Hall; deaths, injuries and the trend need one.
+            MoraleReport.build(world, village, treasury).forEach(player::sendMessage);
+            return;
+        }
         if (treasury == null) {
             throw new CommandException(village == null ? "commands.tekeco.novillage" : "commands.tekeco.notownhall");
         }
@@ -247,7 +253,7 @@ public class CommandTekEco extends CommandBase {
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
         if (args.length == 1) {
-            return getListOfStringsMatchingLastWord(args, "balance", "deposit", "withdraw", "report", "sell");
+            return getListOfStringsMatchingLastWord(args, "balance", "deposit", "withdraw", "report", "sell", "morale");
         }
         if (args.length == 2 && "deposit".equals(args[0])) {
             return getListOfStringsMatchingLastWord(args, "all");
